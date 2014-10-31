@@ -24,59 +24,84 @@ function TreeWalker(inputTree, visitor) {
   this.visitor = visitor;
 }
 
-TreeWalker.prototype.read = function (readTree) {
-  var self = this, deferred = RSVP.defer();
+/**
+ *
+ * Read the directory, and stat the files it contains. Returns a promise
+ * that will be resolved with the result of statFiles
+ *
+ * @param srcDir {string} the directory to read
+ * @return {RSVP.Promise}
+ */
+TreeWalker.prototype.readDir = function (srcDir) {
+  var self = this;
+  //make a promise to read the directory.
+  return new RSVP.Promise(function (resolve, reject) {
+    fs.readdir(srcDir, function (err, files) {
+      //Resolve with all files or err
+      if (err) { reject(err); }
+      else {
+        resolve(self.statFiles(srcDir, files));
+      }
+    });
+  });
+};
 
-  function readDir(srcDir) {
-    //make a promise to read the directory.
+/**
+ * Stat all the files in `parentPath`, calling `readDir` for directories,
+ * and deferring to the visitor for plain files.
+ * The resulting promise will be resolved with an array of promises.
+ *
+ * @param parentPath {string} the parent directory for the files
+ * @param files {array} the list of files in the directory
+ * @return {RSVP.Promise}
+ */
+TreeWalker.prototype.statFiles = function statFiles(parentPath, files) {
+  var self = this;
+
+  //make a promise to stat all files, which is resolved
+  return RSVP.all(files.map(function (file) {
+    //when each file is statted
     return new RSVP.Promise(function (resolve, reject) {
-      fs.readdir(srcDir, function (err, files) {
-        //Resolve with all files or err
-        if (err) { deferred.reject(err); }
+      var filePath = path.join(parentPath, file);
+      //read the file
+      fs.lstat(filePath, function (err, stat) {
+        if (err) { reject(err)}
         else {
-          resolve(statFiles({dir: srcDir, files: files}));
+          if (stat.isDirectory()) {
+            //and resolve it with the promise to read the directory
+            resolve(self.readDir(filePath))
+          } else {
+            //or a visit to the filepath
+            resolve(self.visitor.visit(filePath));
+          }
         }
       });
     });
-  }
-
-  //Callback hell. See walkthrough
-  function statFiles(args) {
-    var parentPath = args.dir, files = args.files;
-
-    //make a promise to stat all files, which is resolved
-    return RSVP.all(files.map(function (file) {
-      //when each file is statted
-      return new RSVP.Promise(function (resolve, reject) {
-        var filePath = path.join(parentPath, file);
-        //read the file
-        fs.lstat(filePath, function (err, stat) {
-          if (err) { reject(err)}
-          else {
-            if (stat.isDirectory()) {
-              //and resolve it with the promise to read the directory
-              resolve(readDir(filePath))
-            } else {
-              //or a visit to the filepath
-              resolve(self.visitor.visit(filePath));
-            }
-          }
-        });
-      });
-    }));
-  }
-
-  readTree(self.inputTree)
-    .then(readDir)
-    .then().then(function () {
-      deferred.resolve();
-    }).catch(function (err) {
-      deferred.reject(err);
-    });
-
-  return deferred.promise;
+  }));
 };
+
 /**
+ * Implementation of Brocolli's required `read` method for a tree
+ *
+ * Read the input tree, then read read the src dir
+ *
+ * @param readTree
+ * @return {RSVP.Promise}
+ */
+TreeWalker.prototype.read = function (readTree) {
+  var self = this;
+
+  return readTree(self.inputTree)
+    .then(this.readDir.bind(this));
+};
+
+/**
+ * Take an input tree, and roll it up into a JSON document.
+ * The resulting document will be named `srcDir.json`. it will have
+ * key names associated with each of the file and directories that `srcDir` contains.
+ * If the key represents the file, then the stringified file contents will be the value of the key.
+ * If the key represents a directory, then the value of that key will be an `Object`, represented
+ * by the same algorithm
  *
  * @param inputTree - Tree or path
  * @return {Tree2Json}
@@ -91,6 +116,13 @@ function Tree2Json(inputTree) {
 
 util.inherits(Tree2Json, Writer);
 
+/**
+ * Take the contents of the `buffer`, and place it in the JSON at the
+ * path represented by filePath
+
+ * @param filePath
+ * @param buffer
+ */
 Tree2Json.prototype.loadJson = function (filePath, buffer) {
   var elem = this.json;
   var keys = filePath.split(path.sep);
@@ -106,6 +138,14 @@ Tree2Json.prototype.loadJson = function (filePath, buffer) {
   });
 };
 
+/**
+ * Interface implementation required by Walker.
+ *
+ * Read the file, and load the results into json
+ *
+ * @param filePath
+ * @return {RSVP.Promise}
+ */
 Tree2Json.prototype.visit = function (filePath) {
   var self = this;
   return new RSVP.Promise(function (resolve, reject) {
@@ -113,7 +153,6 @@ Tree2Json.prototype.visit = function (filePath) {
       if (err) {reject(err);}
       else {
         self.loadJson(filePath, data);
-        //or we're done
         resolve();
       }
     })
@@ -121,7 +160,9 @@ Tree2Json.prototype.visit = function (filePath) {
 };
 
 /**
- * Satisfy interface required by 'Write'
+ * Satisfy interface required by 'Write'.
+ *
+ * Defer to walker to read the tree (which will let me visit each file)
  *
  * @param readTree - a function to read the tree. It should return a promise
  * @param destDir - the directory to write the results in
