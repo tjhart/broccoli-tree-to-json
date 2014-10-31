@@ -88,16 +88,14 @@ Tree2Json.prototype.write = function (readTree, destDir) {
     .then(function () {
       return RSVP.all(Object.keys(self.json).map(function (key) {
         return new RSVP.Promise(function (resolve, reject) {
-          var filename = path.join(destDir, key) + '.json';
-          fs.writeFile(filename, JSON.stringify(self.json), function (err) {
+          fs.writeFile(path.join(destDir, key) + '.json', JSON.stringify(self.json), function (err) {
             if (err) {reject(err);}
-            else resolve(filename);
+            else resolve();
           });
         });
       }));
-    }).then(function (files) {
+    }).then(function () {
       self.json = {};
-      return files;
     });
 };
 
