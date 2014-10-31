@@ -95,7 +95,7 @@ Tree2Json.prototype.write = function (readTree, destDir) {
         });
       }));
     }).then(function () {
-      //release no longer needed data structure
+      //release memory
       self.json = {};
     });
 };
