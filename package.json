@@ -1,0 +1,32 @@
+{
+  "name": "broccoli-tree-to-json",
+  "version": "0.1.0",
+  "description": "Roll up a tree into a JSON document",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tjhart/broccoli-tree-to-json.git"
+  },
+  "keywords": [
+    "broccoli",
+    "json"
+  ],
+  "author": "Tim Hart",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjhart/broccoli-tree-to-json/issues"
+  },
+  "homepage": "https://github.com/tjhart/broccoli-tree-to-json",
+  "dependencies": {
+    "broccoli": "^0.13.2",
+    "broccoli-writer": "^0.1.1",
+    "rsvp": "^3.0.14"
+  },
+  "devDependencies": {
+    "broccoli-merge-trees": "^0.2.1",
+    "broccoli-static-compiler": "^0.2.1"
+  }
+}
