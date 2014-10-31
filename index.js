@@ -84,19 +84,20 @@ Tree2Json.prototype.write = function (readTree, destDir) {
   var self = this;
   this.json = {};
 
-  return this.walker.read(readTree)
+  return readTree(this.walker)
     .then(function () {
       return RSVP.all(Object.keys(self.json).map(function (key) {
         return new RSVP.Promise(function (resolve, reject) {
-          fs.writeFile(path.join(destDir, key) + '.json', JSON.stringify(self.json), function (err) {
+          var filename = path.join(destDir, key) + '.json';
+          fs.writeFile(filename, JSON.stringify(self.json), function (err) {
             if (err) {reject(err);}
-            else resolve();
+            else resolve(filename);
           });
         });
       }));
-    }).then(function () {
-      //release memory
+    }).then(function (files) {
       self.json = {};
+      return files;
     });
 };
 
