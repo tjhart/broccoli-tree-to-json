@@ -38,10 +38,7 @@ util.inherits(Tree2Json, Writer);
  */
 Tree2Json.prototype.loadJson = function (filePath, buffer) {
   var elem = this.json;
-  console.log('filePath', filePath);
-  console.log('inputTree', this.inputTree);
   var keys = filePath.substr(this.inputTree.length + 1).split(path.sep);
-  console.log('keys', keys);
   keys.forEach(function (key, i) {
     var subelem;
     if (i === keys.length - 1) {
