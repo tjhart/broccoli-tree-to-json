@@ -15,7 +15,7 @@ var TreeTraverser = require('broccoli-tree-traverser'),
  * If the key represents a directory, then the value of that key will be an `Object`, represented
  * by the same algorithm
  *
- * @param inputTree - Tree or path
+ * @param inputTree {string} - relative path to source tree
  * @return {Tree2Json}
  * @constructor
  * @alias module:index
