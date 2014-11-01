@@ -23,6 +23,7 @@ var TreeTraverser = require('broccoli-tree-traverser'),
 function Tree2Json(inputTree) {
   if (!(this instanceof Tree2Json)) return new Tree2Json(inputTree);
 
+  this.inputTree = inputTree;
   this.walker = new TreeTraverser(inputTree, this);
 }
 
@@ -37,7 +38,10 @@ util.inherits(Tree2Json, Writer);
  */
 Tree2Json.prototype.loadJson = function (filePath, buffer) {
   var elem = this.json;
-  var keys = filePath.split(path.sep);
+  console.log('filePath', filePath);
+  console.log('inputTree', this.inputTree);
+  var keys = filePath.substr(this.inputTree.length + 1).split(path.sep);
+  console.log('keys', keys);
   keys.forEach(function (key, i) {
     var subelem;
     if (i === keys.length - 1) {
@@ -86,14 +90,13 @@ Tree2Json.prototype.write = function (readTree, destDir) {
 
   return readTree(this.walker)
     .then(function () {
-      return RSVP.all(Object.keys(self.json).map(function (key) {
-        return new RSVP.Promise(function (resolve, reject) {
-          fs.writeFile(path.join(destDir, key) + '.json', JSON.stringify(self.json), function (err) {
-            if (err) {reject(err);}
-            else resolve();
-          });
+      return new RSVP.Promise(function (resolve, reject) {
+
+        fs.writeFile(path.join(destDir, self.inputTree.substr(self.inputTree.lastIndexOf('/'))) + '.json', JSON.stringify(self.json), function (err) {
+          if (err) {reject(err);}
+          else resolve();
         });
-      }));
+      });
     }).then(function () {
       self.json = {};
     });
