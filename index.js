@@ -23,7 +23,7 @@ var TreeTraverser = require('broccoli-tree-traverser'),
 function Tree2Json(inputTree) {
   if (!(this instanceof Tree2Json)) return new Tree2Json(inputTree);
 
-  this.inputTree = inputTree;
+  this.inputTree = inputTree.replace(/\/$/, '');
   this.walker = new TreeTraverser(inputTree, this);
 }
 
@@ -72,6 +72,14 @@ Tree2Json.prototype.visit = function (filePath) {
   });
 };
 
+function getFilePath(destDir, inputTree) {
+  var fileName = inputTree;
+  var pathPos = fileName.lastIndexOf(path.sep);
+  if (pathPos > 0) {
+    fileName = fileName.substr(pathPos);
+  }
+  return path.join(destDir, fileName) + '.json';
+}
 /**
  * Satisfy interface required by 'Write'.
  *
@@ -89,7 +97,7 @@ Tree2Json.prototype.write = function (readTree, destDir) {
     .then(function () {
       return new RSVP.Promise(function (resolve, reject) {
 
-        fs.writeFile(path.join(destDir, self.inputTree.substr(self.inputTree.lastIndexOf('/'))) + '.json', JSON.stringify(self.json), function (err) {
+        fs.writeFile(getFilePath(destDir, self.inputTree), JSON.stringify(self.json), function (err) {
           if (err) {reject(err);}
           else resolve();
         });
