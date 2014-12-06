@@ -39,36 +39,28 @@ File contents are parsed by `JSON.parse`, and if that fails the contents of the 
 ### In a Brocfile:
 ```javascript
 //Brocfile.js
-var Tree2Json = require('broccoli-tree-to-json');
+var tree2Json = require('broccoli-tree-to-json');
 
-var visitor = {
-  visit:function(path){
-    console.log('visiting', path);  
-  }
-};
-
-module.exports = traverser('interesting/path', visitor);
+module.exports = tree2Json('interesting/path');
 
 ```
 
 ### Within another plugin
 ```javascript
 //index.js
-var traverser = require('broccoli-tree-traverser');
-
+var tree2Json = require('broccoli-tree-to-json'),
+  path = require('path');
 
 function MyPlugin(inputTree){
-  this.traverser = traverser(inputTree, this);
+  this.jsonTree = tree2Json(path.join(inputTree, 'json');
 }
 
-MyPlugin.prototype.visit = function(path){
-  //do something interesting with the path
-};
-
 MyPlugin.prototype.read = function(readTree){
-  return readTree(this.traverser);
+  return readTree(this.jsonTree)
+    .then(function(){
+      //...
+    });
 };
-
 
 module.exports = MyPlugin; 
 ```
