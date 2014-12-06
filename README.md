@@ -15,7 +15,7 @@ root
 
 Will result in the following json:
 ```javascript
-//root.json
+//destDir/root.json
 {
   "key1":123,
   "key2":"val2",
@@ -52,7 +52,7 @@ var tree2Json = require('broccoli-tree-to-json'),
   path = require('path');
 
 function MyPlugin(inputTree){
-  this.jsonTree = tree2Json(path.join(inputTree, 'json');
+  this.jsonTree = tree2Json(path.join(inputTree, 'json'));
 }
 
 MyPlugin.prototype.read = function(readTree){
