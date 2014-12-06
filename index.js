@@ -42,7 +42,12 @@ Tree2Json.prototype.loadJson = function (filePath, buffer) {
   keys.forEach(function (key, i) {
     var subelem;
     if (i === keys.length - 1) {
-      elem[key.split('.')[0]] = buffer.toString();
+      var strval = buffer.toString();
+      try {
+        elem[key.split('.')[0]] = JSON.parse(strval);
+      } catch (e) {
+        elem[key.split('.')[0]] = strval;
+      }
     } else {
       subelem = elem[key] || {};
       elem[key] = subelem;

@@ -12,16 +12,20 @@
   },
   "keywords": [
     "broccoli",
+    "broccoli-plugin",
+    "broccoli-helper",
+    "helper",
+    "npm",
     "json"
   ],
-  "author": "Tim Hart",
+  "author": "Tim Hart <tjhart@icloud.com> (http://www.github.com/tjhart)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tjhart/broccoli-tree-to-json/issues"
   },
   "homepage": "https://github.com/tjhart/broccoli-tree-to-json",
   "dependencies": {
-    "broccoli-tree-traverser": "git+https://github.com/tjhart/broccoli-tree-traverser.git",
+    "broccoli-tree-traverser": "^0.1.1",
     "broccoli-writer": "^0.1.1",
     "rsvp": "^3.0.14"
   },
