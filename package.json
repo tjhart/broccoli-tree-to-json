@@ -1,6 +1,6 @@
 {
   "name": "broccoli-tree-to-json",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Roll up a tree into a JSON document",
   "main": "index.js",
   "scripts": {
