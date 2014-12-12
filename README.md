@@ -1,7 +1,7 @@
 broccoli-tree-to-json
 ====================
 
-Roll up a directory tree into a JSON document.
+A [Broccoli](https://github.com/broccolijs/broccoli) plugin for rolling up a directory tree into a JSON document.
 
 The directory structure:
 ```
@@ -10,7 +10,7 @@ root
 |--key2.txt #val2
 +--subdir
    |--key3.txt #true
-   |--key4.txt #val4
+   +--key4.txt #val4
 ```
 
 Will result in the following json:
